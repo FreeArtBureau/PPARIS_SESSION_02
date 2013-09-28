@@ -1,0 +1,277 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1138\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue237;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww12520\viewh15720\viewkind0
+\deftab720
+\pard\pardeftab720\sa240
+
+\f0\fs28 \cf0 ***************************\
+\pard\pardeftab720\sa240
+
+\b \cf0 La librairie oscP5
+\b0 \
+***************************\
+\
+\pard\pardeftab720
+
+\b \cf0 L'Open Sound Control
+\b0  est un format de transmission de donn\'e9es entre ordinateurs, synth\'e9tiseurs, robots ou tout autre mat\'e9riel ou logiciel compatible, con\'e7u pour le contr\'f4le en temps r\'e9el. Il utilise le r\'e9seau au travers des protocoles {\field{\*\fldinst{HYPERLINK "http://fr.wikipedia.org/wiki/UDP"}}{\fldrslt \cf2 \ul \ulc2 UDP}} ou {\field{\*\fldinst{HYPERLINK "http://fr.wikipedia.org/wiki/TCP"}}{\fldrslt \cf2 \ul \ulc2 TCP}} et apporte des am\'e9liorations en termes de rapidit\'e9 et flexibilit\'e9 par rapport \'e0 l'ancienne norme {\field{\*\fldinst{HYPERLINK "http://fr.wikipedia.org/wiki/MIDI"}}{\fldrslt \cf2 \ul \ulc2 MIDI}}.
+\fs24  (src wikipedia)
+\fs28 \
+\pard\pardeftab720\sa240
+
+\b \cf0 \
+\
+Pour envoyer et recevoir des messages OSC avec Processing, il est n\'e9cessaire de t\'e9l\'e9charger {\field{\*\fldinst{HYPERLINK "http://www.sojamo.de/libraries/oscP5/"}}{\fldrslt oscP5 Library}}.\
+Pour l'installer il suffit de t\'e9l\'e9charger le ZIP et de placer le r\'e9pertoire "oscP5" dans le dossier "librairies" de Processing. Celui-ci doit d'ailleurs se trouver dans le dossier "Processing".\
+\pard\pardeftab720\sa240
+
+\b0 \cf0 \
+\
+*************************************************************\
+\pard\pardeftab720\sa280
+
+\b \cf0 Envoyer des donn\'e9es depuis Processing\
+\pard\pardeftab720\sa240
+
+\b0 \cf0 *************************************************************\
+\pard\pardeftab720\sa280
+
+\b \cf0 \
+\pard\pardeftab720\sa240
+
+\b0 \cf0 Tout d'abord on doit cr\'e9er un nouveau sketch Processing:\
+\pard\pardeftab720
+
+\b \cf0 void setup()\
+\{\
+    size(400, 400);\
+\}\
+\'a0\
+void draw()\
+\{\
+\'a0\
+\}\
+\pard\pardeftab720\sa240
+
+\b0 \cf0 \
+\
+\
+\
+Ensuite il faut importer la librairie oscP5 par le menu Sketch->Import Library->oscP5. On peut aussi ajouter directement le code ci-dessous :\
+\pard\pardeftab720
+
+\b \cf0 \
+import oscP5.*;\
+import netP5.*;\
+
+\b0 \
+\pard\pardeftab720\sa240
+\cf0 \
+\
+\
+\'c0 pr\'e9sent, nous allons cr\'e9er deux objets, l'un pour envoyer des messages et l'autre pour enregistrer une adresse r\'e9seau (l\'e0 o\'f9 nous enverrons les donn\'e9es). Il faut ajouter ces lignes juste en dessous des 2 lignes pr\'e9c\'e9dentes :\
+\pard\pardeftab720
+
+\b \cf0 OscP5 oscP5;\
+NetAddress myRemoteLocation;\
+\pard\pardeftab720\sa240
+
+\b0 \cf0 \
+\
+\'c0 pr\'e9sent dans la fonction 
+\b setup(), 
+\b0 on va initialiser notre objet oscP5 en le connectant au port 5001. Ensuite, il nous reste \'e0 ajout\'e9 le num\'e9ro du port et l'adresse r\'e9seau (dans notre cas c'est en local, 127.0.0.1)  \'e0 l'objet "myRemoteLocation" (mon emplacement distant en fran\'e7ais) :\
+\
+\
+\pard\pardeftab720
+
+\b \cf0 void setup() \{\
+  size(400,400);\
+\'a0\
+
+\b0   // on d\'e9marre oscP5 en lui disant d'\'e9couter les messages venant du port 5001 */\
+
+\b   oscP5 = new OscP5(this,5001);\
+\'a0\
+  // on r\'e8gle l'emplacement distant en local sur le port 5001\
+  myRemoteLocation = new NetAddress("127.0.0.1",5001);\
+\}\
+\pard\pardeftab720\sa240
+
+\b0 \cf0 \
+\
+\
+\
+\pard\pardeftab720
+\cf0 Enfin, on peut ajouter les lignes de codes qui permettent l'envoi de message \'e0 chaque clic de souris par exemple.\
+\
+\
+
+\b void mousePressed() \{  \
+
+\b0   // cr\'e9ation du message OSC (/test ? convention)\
+
+\b   OscMessage myMessage = new OscMessage("/test");\
+
+\b0 \'a0\
+  
+\b myMessage.add(123);
+\b0  // ajout d'une valeur int\'e9grale (int)\
+  
+\b myMessage.add(12.34);
+\b0  // ajout d'une valeur flottante (float) \
+  
+\b myMessage.add("some text!");
+\b0  //  ajout d'une phrase (string)\
+\'a0\
+  // envoi du message\
+  oscP5.send(myMessage, myRemoteLocation); \
+\}\
+\pard\pardeftab720\sa240
+\cf0 \
+\
+**********************************\
+\pard\pardeftab720\sa280
+
+\b \cf0 Recevoir les messages\
+\pard\pardeftab720\sa240
+
+\b0 \cf0 **********************************\
+\pard\pardeftab720\sa280
+
+\b \cf0 \
+\pard\pardeftab720\sa240
+
+\b0 \cf0 Pour permettre \'e0 Processing de recevoir des message, nous devons d\'e9finir une fonction qui que l'on nomme oscEvent(). \'c0 chaque fois que Processing re\'e7oit un message, il va \'eatre trait\'e9 par la fonction oscEvent().\
+Pour recevoir et analyser les messages OSC, ajoutons donc ce qui suit \'e0 notre sketch :\
+\
+\pard\pardeftab720
+
+\b \cf0 void oscEvent(OscMessage theOscMessage) \
+\{  \
+
+\b0   // on r\'e9cup\'e8re la premi\'e8re valeur comme une int\'e9grale\
+
+\b   int firstValue = theOscMessage.get(0).intValue();\
+\'a0\
+
+\b0   // on r\'e9cup\'e8re la premi\'e8re valeur comme un nombre \'e0 virgule\
+
+\b   float secondValue = theOscMessage.get(1).floatValue();\
+\'a0\
+
+\b0   // on r\'e9cup\'e8re la premi\'e8re valeur comme une phrase\
+
+\b   String thirdValue = theOscMessage.get(2).stringValue();\
+\'a0\
+
+\b0   // Et on \'e9crit dans la console le message en ajout\'e9 les valeurs \'e0 la suite\
+
+\b   print("OSC Message Recieved: ");\
+  print(theOscMessage.addrPattern() + " ");\
+  println(firstValue + " " + secondValue + " " + thirdValue);\
+\}\
+\pard\pardeftab720\sa240
+
+\b0 \cf0 \
+\
+\'c0 pr\'e9sent, on peut lancer le sketch et quand on clique dans la fen\'eatre on peut voir les messages s'imprimer dans la console Processing (zone noir en dessous)\
+\
+\
+\
+\
+******************************\
+\pard\pardeftab720\sa280
+
+\b \cf0 La source compl\'e8te\
+\pard\pardeftab720\sa240
+
+\b0 \cf0 ******************************\
+\pard\pardeftab720\sa280
+
+\b \cf0 \
+\pard\pardeftab720
+\cf0 import oscP5.*;\
+import netP5.*;\
+\'a0\
+OscP5 oscP5;\
+NetAddress myRemoteLocation;\
+
+\b0 \'a0\
+
+\b void setup() \{\
+  size(400,400);\
+\'a0\
+
+\b0   // on d\'e9marre oscP5 en lui disant d'\'e9couter les messages venant du port 5001 */\
+
+\b   oscP5 = new OscP5(this,5001);\
+\'a0\
+  // on r\'e8gle l'emplacement distant en local sur le port 5001\
+  myRemoteLocation = new NetAddress("127.0.0.1",5001);\
+\}\
+
+\b0 \'a0\
+\
+\
+
+\b void draw()\
+\{\
+\'a0\
+\}\
+
+\b0 \'a0\
+\
+\
+
+\b void mousePressed() \{  \
+
+\b0   // cr\'e9ation du message OSC\
+
+\b   OscMessage myMessage = new OscMessage("/test");\
+
+\b0 \'a0\
+  
+\b myMessage.add(123);
+\b0  // ajout d'une valeur int\'e9grale (int)\
+  
+\b myMessage.add(12.34);
+\b0  // ajout d'une valeur flottante (float) \
+  
+\b myMessage.add("some text!");
+\b0  //  ajout d'une phrase (string)\
+\'a0\
+  // envoi du message\
+  oscP5.send(myMessage, myRemoteLocation); \
+\}\
+\'a0\
+\
+\
+\'a0\
+
+\b void oscEvent(OscMessage theOscMessage) \
+\{  \
+
+\b0   // on r\'e9cup\'e8re la premi\'e8re valeur comme une int\'e9grale\
+
+\b   int firstValue = theOscMessage.get(0).intValue();\
+\'a0\
+
+\b0   // on r\'e9cup\'e8re la premi\'e8re valeur comme un nombre \'e0 virgule\
+
+\b   float secondValue = theOscMessage.get(1).floatValue();\
+\'a0\
+
+\b0   // on r\'e9cup\'e8re la premi\'e8re valeur comme une phrase\
+
+\b   String thirdValue = theOscMessage.get(2).stringValue();\
+\'a0\
+
+\b0   // Et on \'e9crit dans la console le message en ajout\'e9 les valeurs \'e0 la suite\
+
+\b   print("OSC Message Recieved: ");\
+  print(theOscMessage.addrPattern() + " ");\
+  println(firstValue + " " + secondValue + " " + thirdValue);\
+\}\
+}
